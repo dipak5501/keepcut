@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Keepcut">
+  <rect width="64" height="64" rx="14" fill="#047857"/>
+  <path d="M18 44 L46 20" stroke="#ecfdf5" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="20" cy="22" r="7" fill="none" stroke="#ecfdf5" stroke-width="5"/>
+  <circle cx="44" cy="42" r="7" fill="none" stroke="#a7f3d0" stroke-width="5"/>
+</svg>
