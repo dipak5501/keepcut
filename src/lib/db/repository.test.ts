@@ -120,6 +120,21 @@ describe('subscription CRUD', () => {
     expect((await repo.getSubscription(created.value.id))?.decision).toBeUndefined();
   });
 
+  it('applies decisions in bulk and records backup timestamps', async () => {
+    const a = await repo.createSubscription(input);
+    const b = await repo.createSubscription({ ...input, name: 'Hulu', amountMinor: 999 });
+    if (!a.ok || !b.ok) throw new Error('setup failed');
+    expect(await repo.setDecisions([a.value.id, b.value.id, 'missing'], 'cut')).toBe(2);
+    expect((await repo.getSubscription(a.value.id))?.decision).toBe('cut');
+    expect((await repo.getSubscription(b.value.id))?.decision).toBe('cut');
+    expect(await repo.setDecisions([a.value.id], undefined)).toBe(1);
+    expect((await repo.getSubscription(a.value.id))?.decision).toBeUndefined();
+
+    expect((await repo.getSettings()).lastBackupAt).toBeUndefined();
+    await repo.markBackupTaken();
+    expect((await repo.getSettings()).lastBackupAt).toBe(clock.toISOString());
+  });
+
   it('cancels with proof and can reactivate', async () => {
     const created = await repo.createSubscription(input);
     if (!created.ok) throw new Error('setup failed');

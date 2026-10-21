@@ -113,6 +113,7 @@ export const settingsSchema = z.object({
   reminderLeadDays: z.number().int().min(0).max(30),
   theme: z.enum(['system', 'light', 'dark']),
   onboarded: z.boolean(),
+  lastBackupAt: z.string().max(40).optional(),
 });
 
 export const cancellationInputSchema = cancellationSchema;

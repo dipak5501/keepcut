@@ -150,6 +150,31 @@ export function createRepository(database: KeepcutDatabase, options: RepositoryO
     return patch(id, { decision });
   }
 
+  /** Applies the same keep/cut/review decision to many subscriptions in one transaction. */
+  async function setDecisions(ids: string[], decision: Decision | undefined): Promise<number> {
+    const unique = [...new Set(ids)];
+    return database.transaction('rw', database.subscriptions, async () => {
+      let count = 0;
+      const stamp = now().toISOString();
+      for (const id of unique) {
+        const existing = await database.subscriptions.get(id);
+        if (!existing) continue;
+        const next = stripUndefined({
+          ...existing,
+          decision,
+          updatedAt: stamp,
+        }) as Subscription;
+        await database.subscriptions.put(next);
+        count += 1;
+      }
+      return count;
+    });
+  }
+
+  async function markBackupTaken(): Promise<void> {
+    await updateSettings({ lastBackupAt: now().toISOString() });
+  }
+
   async function setUsage(id: string, usage: number | undefined): Promise<Subscription> {
     if (usage !== undefined && (!Number.isInteger(usage) || usage < 1 || usage > 5)) {
       throw new RangeError('Usage must be between 1 and 5');
@@ -304,6 +329,8 @@ export function createRepository(database: KeepcutDatabase, options: RepositoryO
     createSubscription,
     updateSubscription,
     setDecision,
+    setDecisions,
+    markBackupTaken,
     setUsage,
     markCanceled,
     reactivate,

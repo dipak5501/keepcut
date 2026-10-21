@@ -56,6 +56,7 @@ export function SettingsPage() {
       JSON.stringify(backup, null, 2),
       'application/json',
     );
+    await repository.markBackupTaken();
     toast.show('Backup downloaded. Keep it somewhere safe — it isn’t encrypted.');
   };
 
@@ -180,6 +181,9 @@ export function SettingsPage() {
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Your data lives only in this browser. Clearing site data or switching devices removes it
             — download a backup first.
+            {settings.lastBackupAt
+              ? ` Last backup: ${formatDisplayDate(settings.lastBackupAt.slice(0, 10))}.`
+              : ' No backup downloaded yet.'}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" className="btn-primary" onClick={() => setEncryptOpen(true)}>
@@ -350,6 +354,7 @@ function EncryptBackupDialog({ onClose }: { onClose: () => void }) {
         JSON.stringify(envelope),
         'application/json',
       );
+      await repository.markBackupTaken();
       toast.show('Encrypted backup downloaded. You’ll need the passphrase to restore it.');
       onClose();
     } catch (error) {

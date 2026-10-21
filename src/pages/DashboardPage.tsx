@@ -2,6 +2,7 @@ import {
   CalendarDays,
   ChevronRight,
   Clock,
+  HardDrive,
   Layers,
   ListChecks,
   PiggyBank,
@@ -19,6 +20,7 @@ import { Link } from 'react-router';
 import { useToast } from '@/hooks/useToast';
 import { EmptyState, Money, PageHeader } from '@/components/ui';
 import { useAppData } from '@/hooks/useAppData';
+import { daysSinceBackup, isBackupStale } from '@/lib/backupFreshness';
 import { formatDisplayDate, relativeDays } from '@/lib/dates';
 import { repository } from '@/lib/db/repository';
 import {
@@ -32,7 +34,7 @@ import {
 } from '@/lib/insights';
 import { logger } from '@/lib/logger';
 import { formatMoney } from '@/lib/money';
-import type { Currency } from '@/lib/types';
+import { BACKUP_STALE_DAYS, type Currency } from '@/lib/types';
 
 function StatCard({
   icon: Icon,
@@ -181,6 +183,8 @@ export function DashboardPage() {
   ];
 
   const potentialMonthly = savings.markedCutMonthlyMinor + savings.lowUsageMonthlyMinor;
+  const backupStale = isBackupStale(settings.lastBackupAt);
+  const backupAge = daysSinceBackup(settings.lastBackupAt);
 
   return (
     <>
@@ -198,6 +202,29 @@ export function DashboardPage() {
           </>
         }
       />
+
+      {backupStale && (
+        <aside
+          role="status"
+          className="mb-4 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 sm:flex-row sm:items-center sm:justify-between dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-100"
+        >
+          <span className="flex items-start gap-3">
+            <HardDrive aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+            <span>
+              <span className="font-semibold">Protect your data with a backup.</span>{' '}
+              {backupAge === null
+                ? 'Nothing has been downloaded yet — clearing this browser would erase your subscriptions.'
+                : `Your last backup was ${backupAge} day${backupAge === 1 ? '' : 's'} ago (aim for every ${BACKUP_STALE_DAYS} days).`}
+            </span>
+          </span>
+          <Link
+            to="/app/settings"
+            className="btn-secondary btn-sm shrink-0 self-start sm:self-center"
+          >
+            Open Settings
+          </Link>
+        </aside>
+      )}
 
       <section aria-label="Totals" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

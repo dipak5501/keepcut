@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Bulk keep / review / cut (and clear decision) from the subscriptions list.
+- Dashboard nudge when no backup has been downloaded, or the last one is older than 14 days.
+- Settings records `lastBackupAt` after plain, encrypted, or recovery backups.
+
 ## [1.0.0] - 2026-10-05
 
 First public release.

@@ -121,6 +121,8 @@ export interface Settings {
   reminderLeadDays: number;
   theme: Theme;
   onboarded: boolean;
+  /** ISO timestamp of the last plain or encrypted backup download. */
+  lastBackupAt?: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -129,6 +131,9 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
   onboarded: false,
 };
+
+/** Days without a backup before the dashboard nudges the user. */
+export const BACKUP_STALE_DAYS = 14;
 
 export interface ImportRecord {
   id: string;

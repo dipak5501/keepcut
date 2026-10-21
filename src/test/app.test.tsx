@@ -18,7 +18,21 @@ describe('onboarding', () => {
     expect(screen.getByText('Monthly spend')).toBeInTheDocument();
     expect(screen.getByText(/Peloton App trial ends/)).toBeInTheDocument();
     expect(screen.getByText(/Cancel Disney\+ before it renews/)).toBeInTheDocument();
+    expect(screen.getByText(/Protect your data with a backup/)).toBeInTheDocument();
     expect(await db.subscriptions.count()).toBe(14);
+  });
+
+  it('marks several subscriptions keep or cut from the list', async () => {
+    await repository.loadDemoData();
+    const { user } = renderApp('/app/subscriptions');
+    await user.click(await screen.findByRole('checkbox', { name: /select disney\+/i }));
+    await user.click(screen.getByRole('checkbox', { name: /select max/i }));
+    await user.click(screen.getByRole('button', { name: /^Cut$/ }));
+    await screen.findByText(/Marked 2 subscriptions as Cut/);
+    const rows = await db.subscriptions.toArray();
+    expect(
+      rows.filter((s) => /disney|max/i.test(s.name) && s.decision === 'cut').length,
+    ).toBeGreaterThanOrEqual(2);
   });
 
   it('shows an empty state with next steps when there is no data', async () => {

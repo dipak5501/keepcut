@@ -29,6 +29,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
         JSON.stringify(backup, null, 2),
         'application/json',
       );
+      await repository.markBackupTaken();
     } catch (error) {
       logger.error('Recovery backup failed', error);
     }
